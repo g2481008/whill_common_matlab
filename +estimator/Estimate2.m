@@ -45,31 +45,14 @@ classdef Estimate2 < handle
         function [result,send] = main(obj,sensordata,Plant,T)
             result.RawData = sensordata;
             result.Plant = Plant;
-
-            if ~isempty(sensordata.LIDAR)
-                % ptCloud = pointCloud(rosReadXYZ(sensordata.LIDAR));
-            end
-            % ptCloud = pointCloud(rosReadXYZ(sensordata.LIDAR));
-            if ~isempty(sensordata.CAMERA)
-                % fusion();
-            end
-            if ~isempty(sensordata.GNSS)
-            end
-
-            obj.Allxhat = zeros(4,5);
             
             
-            % Save data
-            % 車椅子の入力 ---------------------
-            % result.V = [0.3;0]; 
-            % --------------------------------
+            % save data
             result.xhat = obj.Allxhat; % example
             
             
 
-            % send to Controller           
-            % send.xhat = obj.Allxhat; % example
-            % send.y = ones(40,3); % example
+            % send to Controller
             send.pose = [Plant.X, Plant.Y, Plant.Yaw];
             
 
