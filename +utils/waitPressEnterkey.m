@@ -4,7 +4,7 @@ function [] = waitPressEnterkey()
     waitTime = 1.e-3;
     disp('Press Enterkey to execute loop.')
     while 1
-        event = other.kbhit('event');
+        event = utils.kbhit('event');
         key = get(event, 'KeyCode');
         pause(waitTime);
         if ~isempty(key) && key == 10
