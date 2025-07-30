@@ -1,4 +1,4 @@
-classdef RealMode < mode.ModeFactory
+classdef RealMode < mode.ModeStrategy
     properties
         Comm
         Sensfet
