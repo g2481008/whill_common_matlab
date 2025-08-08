@@ -169,6 +169,7 @@ classdef ROS2CommManager < handle
                 pubs = obj.gWhillTopicPubs;
                 msgs = obj.gWhillMsgtypePubs;
                 qos = obj.gqos_profile;
+                qos.Reliability = "reliable"; % Fixing for sfm gazebo
             else
                 pubs = obj.WhillTopicPubs;
                 msgs = obj.WhillMsgtypePubs;
