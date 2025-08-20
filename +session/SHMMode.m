@@ -11,20 +11,24 @@ classdef SHMMode < session.SessionStrategy
 
     end
     methods
-        function obj = SHMMode(role)
+        function obj = SHMMode(cfg,role)
             obj.sessionRole = role;
             fname = strcat(tempdir,"matlab_smgr.bin");
             switch role
                 case 'initiator'
-                    obj.Stopper = figure(101);
-                    set(obj.Stopper,'Name','Press any key to stop systems while this window is active', ...
-                        'KeyPressFcn',@session.SHMMode.checkSignal, 'UserData',true);
+                    obj.Stopper = session.createKeyCon();
                     obj.SMgrSHM = bridge.SharedMem(fname,obj.checkBin,obj.vars);                    
                 case 'participant'
                     pause(3)
                     obj.SMgrSHM = bridge.SharedMem(fname,obj.checkBin);
                     obj.SMgrSHM.timeout = 0.001;
             end
+            % if cfg.modeNumber == 1
+            %     S = load(cfg.OfflinePath);
+            %     uddname = fieldnames(S);
+            %     udd = S.(uddname{1});
+            %     obj.numStep = size(udd,1);
+            % end
         end
         function start(obj)
             switch obj.sessionRole
@@ -52,18 +56,8 @@ classdef SHMMode < session.SessionStrategy
             obj.SMgrSHM.write(d);
             pause(1)
             if isvalid(obj.Stopper)
-                close(obj.Stopper)
+                delete(obj.Stopper)
             end
         end
     end
-    methods (Static, Access = private)
-        function checkSignal(src, ~)
-            disp('Stop system');
-            src.UserData = false;
-        end       
-
-
-
-    end    
-
 end

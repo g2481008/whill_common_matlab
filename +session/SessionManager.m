@@ -12,15 +12,15 @@ classdef SessionManager
             switch cfg.isMultiPC
                 case true
                     % bridge = 'ROS2';
-                    sessionObj = session.ROS2Mode(role);
+                    sessionObj = session.ROS2Mode(cfg,role);
                 case false
                     switch cfg.isParallel
                         case false
                             % bridge = 'NONE';
-                            sessionObj = session.DirectMode(role);
+                            sessionObj = session.DirectMode(cfg,role);
                         case true
                             % bridge = 'SHM'; 
-                            sessionObj = session.SHMMode(role);
+                            sessionObj = session.SHMMode(cfg,role);
                         otherwise
                             error('Invalid value for cfg.isParallel');
                     end

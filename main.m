@@ -15,7 +15,7 @@ sensor(2) = false; % GNSS
 sensor(3) = false; % Camera
 sensor(4) = true; % SLAM/Localization
 base_sensor = 1; % Standard sensor you use mainly. No standard:0, LiDAR:1, GNSS:2, Camera:3
-tspan = 0.1; % Sensor frequency which is corresponded to standard sensor
+tspan = 0.05; % Sensor frequency which is corresponded to standard sensor
 %% Mode configurations
 mode = 3; % 1:Offline, 2:Gazebo simulation, 3:Real exp.
 offlinePath = "/home/student/Program/matlab_common/data/20250613/20250613_171110/userLocal.mat";
@@ -52,7 +52,8 @@ cfg = struct( ...
     "rosNamespace", "matlab", ...
     "estimator"   , estimator, ...
     "controller"  , controller, ...
-    "logger"      , logger);
+    "logger"      , logger, ...
+    "manualCon"   , false);
 
 sys = core.SystemFactory.build(cfg);
 sys.run();

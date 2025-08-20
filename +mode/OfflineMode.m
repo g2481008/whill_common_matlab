@@ -2,7 +2,6 @@ classdef OfflineMode < mode.ModeStrategy
     properties
         path
         sensorIdx
-        udd
     end
     methods
         function obj = OfflineMode(path, idx)

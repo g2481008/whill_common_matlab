@@ -32,7 +32,7 @@ classdef WheelchairSystem < handle
             obj.Mode.setup();
             obj.SMgr.start();
             obj.Timer.start();
-            while obj.SMgr.Stopper.UserData
+            while obj.SMgr.isWorking(obj.cnt+1)
                 obj.cnt = obj.cnt + 1;
                 % Main process
                 [sens,Plant] = obj.Mode.receiveData();
@@ -52,6 +52,7 @@ classdef WheelchairSystem < handle
                 drawnow
                 obj.Timer.wait();
             end
+            obj.SMgr.stop();
             obj.DLog.stop();
         end
     end

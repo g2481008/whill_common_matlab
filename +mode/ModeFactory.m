@@ -7,7 +7,7 @@ classdef ModeFactory
                 case 2
                     modeObj = mode.GazeboMode(cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor);
                 case 3
-                    modeObj = mode.RealMode(cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor);
+                    modeObj = mode.RealMode(cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor,cfg.manualCon);
                 otherwise
                     error("unknown modeNumber");
             end
