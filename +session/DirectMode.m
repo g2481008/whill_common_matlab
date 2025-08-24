@@ -11,7 +11,7 @@ classdef DirectMode < session.SessionStrategy
             obj.sessionRole = role;
             obj.Stopper = session.createKeyCon();
             if cfg.modeNumber == 1
-                S = load(cfg.OfflinePath);
+                S = load(cfg.offlinePath);
                 uddname = fieldnames(S);
                 udd = S.(uddname{1});
                 obj.numStep = size(udd,1);
