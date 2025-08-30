@@ -7,7 +7,6 @@ conf.usr= pwd;
 conf.fpath = split(path, conf.mk(conf.pc));
 conf.fcheck= and(~contains(conf.fpath, matlabroot), ~contains(conf.fpath, conf.def));
 rmpath(strjoin(conf.fpath(conf.fcheck), conf.mk(conf.pc)));
-addpath(genpath(conf.usr));
 %% Sensor configurations
 vehicleType = 1; % 1:CR1, 2:CR2
 sensor(1) = true; % LiDAR
@@ -60,3 +59,4 @@ sys.run();
 
 %% Plot
 plotter.DataPlotter(Datadir,cfg)
+
