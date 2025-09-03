@@ -12,7 +12,8 @@ vehicleType = 1; % 1:CR1, 2:CR2
 sensor(1) = true; % LiDAR
 sensor(2) = false; % GNSS
 sensor(3) = false; % Camera
-sensor(4) = true; % SLAM/Localization
+sensor(4) = true; % SLAM
+sensor(5) = false; % Matching (Only EXP)
 base_sensor = 1; % Standard sensor you use mainly. No standard:0, LiDAR:1, GNSS:2, Camera:3
 tspan = 0.05; % Sensor frequency which is corresponded to standard sensor
 %% Mode configurations

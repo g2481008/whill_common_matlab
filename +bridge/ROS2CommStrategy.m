@@ -71,62 +71,6 @@ classdef (Abstract) ROS2CommStrategy < handle
             obj.node = obj.createNode(nodeName, rid);
         end
         
-        function [pubs, msgs, varnames] = generateEstimatorPublishers(obj, info, filename)
-            %【共通】推定データ送信用Publisher群を生成
-            % どの機体でも同じデータ形式、同じトピック命名規則を使用
-            varnames = fieldnames(info);
-            n = numel(varnames);
-            pubs = cell(n, 1);
-            msgs = cell(n, 1);
-            varTypes = cell(n, 1);
-            
-            for i = 1:n
-                varTypes{i} = info.(varnames{i});
-                typeIdx = find(strcmp(varTypes{i}, obj.MATLAB_TYPE), 1);
-                
-                if ~isempty(typeIdx)
-                    pubs{i} = ros2publisher(obj.node, ...
-                        sprintf("/estimation_data%d", i), ...
-                        obj.ROS2MSG_TYPE{typeIdx});
-                    msgs{i} = ros2message(obj.ROS2MSG_TYPE{typeIdx});
-                else
-                    error('AbstractROS2CommManager:UnsupportedType', ...
-                          'Unsupported variable type: %s', varTypes{i});
-                end
-            end
-            
-            obj.estimatorPubs = pubs;
-            obj.estimatorMsgs = msgs;
-            
-            % メタデータ送信
-            obj.sendVariableMetadata(varnames, varTypes, filename);
-        end
-        
-        function [subs, varNames, isNumeric] = generateControllerSubscribers(obj, varData)
-            %制御データ受信用Subscriber群を生成
-            varNames = split(varData{1}, ',');
-            varTypes = split(varData{2}, ',');
-            n = numel(varTypes);
-            subs = cell(n, 1);
-            typeIndices = zeros(n, 1);
-            
-            for i = 1:n
-                typeIndices(i) = find(strcmp(varTypes{i}, obj.MATLAB_TYPE), 1);
-                
-                if ~isempty(typeIndices(i))
-                    subs{i} = ros2subscriber(obj.node, ...
-                        sprintf("/estimation_data%d", i), ...
-                        obj.ROS2MSG_TYPE{typeIndices(i)});
-                else
-                    error('AbstractROS2CommManager:UnsupportedType', ...
-                          'Unsupported variable type: %s', varTypes{i});
-                end
-            end
-            
-            obj.controllerSubs = subs;
-            isNumeric = typeIndices < (numel(obj.MATLAB_TYPE) - 1);
-        end
-        
         function generateSensorSubscribers(obj)
             %【共通】センサーデータ用Subscriber群を生成
             % 機体固有のトピック・型情報を使って、共通の手順でSubscriber作成

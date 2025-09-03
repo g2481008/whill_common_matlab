@@ -1,7 +1,4 @@
 classdef ROS2CommManager < handle
-    %UNTITLED2 このクラスの概要をここに記述
-    %   詳細説明をここに記述
-
     properties(Constant)
         % Estimator to Contoller
         matlabType = {'int8','uint8','int16','uint16','int32','uint32','int64','uint64','single','double','string','char'};
@@ -13,8 +10,8 @@ classdef ROS2CommManager < handle
             'std_msgs/String','std_msgs/String'};
         
         % Sensor -----------------------------------------------------------------------------------------------------------       
-        SensorTopicSubs = {'/velodyne_points','/ublox_gps_node/fix','/yolo/detections','/current_pose'};
-        SensorMsgtypeSubs = {'sensor_msgs/PointCloud2','sensor_msgs/NavSatFix','yolo_msgs/YoloDetectionArray','geometry_msgs/PoseStamped'};        
+        SensorTopicSubs = {'/velodyne_points','/ublox_gps_node/fix','/yolo/detections','/current_pose','/current_pose'};
+        SensorMsgtypeSubs = {'sensor_msgs/PointCloud2','sensor_msgs/NavSatFix','yolo_msgs/YoloDetectionArray','geometry_msgs/PoseStamped','geometry_msgs/PoseWithCovarianceStamped'};       
         % Gazebo
         gSensorTopicSubs = {'/velodyne_points',[],[],'/wheelchair/pose'};
         gSensorMsgtypeSubs = {'sensor_msgs/PointCloud2',[],[],'geometry_msgs/Pose'};
@@ -30,6 +27,10 @@ classdef ROS2CommManager < handle
         gWhillTopicPubs = {'/wheelchair/diff_drive_controller/cmd_vel'};
         gWhillMsgtypeSubs = {'nav_msgs/Odometry'};
         gWhillMsgtypePubs = {'geometry_msgs/TwistStamped'};
+
+        % CR2 Sensor
+        SensorTopicSubsCR2 = {'/combined/cloud'};
+        SensorMsgTypeSubsCR2 = {'sensor_msgs/PointCloud2'};
 
         qos_profile = struct("Reliability","reliable","Durability","volatile","History","keeplast","Depth",1)
         gqos_profile = struct("Reliability","besteffort","Durability","volatile","History","keeplast","Depth",1)
@@ -67,68 +68,76 @@ classdef ROS2CommManager < handle
             obj.Sens = bridge.SensorFetcher(mode,vehicleType,sensorIdx,baseSens);
         end
 
-        function [pubs,msgs,varname] = genEstimatorPubs(obj,info,FileName)  
-            varname = fieldnames(info);
-            n = numel(varname);
-            pubs = cell(n,1);
-            msgs = cell(n,1);
-            VarType = cell(n,1);
-            for i = 1:n
-                VarType{i} = info.(varname{i});
-                idx = find(strcmp(VarType{i},obj.matlabType));
-                if ~isempty(idx)
-                    pubs{i} = ros2publisher(obj.node, ...
-                        strcat("/estimation_data",string(i)), ...
-                        obj.ros2msgType{idx});
-                    msgs{i} = ros2message(obj.ros2msgType{idx});
-                else
-                    error('Unexpected variable type.')
-                end
-            end
-            
-            % Send variables' name and their type in advance
-            VarName_join = strjoin(varname,',');topic
-            VarType_join = strjoin(VarType,',');
-            VarData = strjoin({VarName_join,VarType_join,char(FileName)},'.');
-            obj.varpub = ros2publisher(obj.node, ...
-                        "/estimation_data0", ...
-                        obj.ros2msgType{11});
-            obj.varmsg = ros2message(obj.ros2msgType{11});
-            obj.varmsg.data = VarData;
-            send(obj.varpub,obj.varmsg);
-        end    
+        % function [pubs,msgs,varname] = genEstimatorPubs(obj,info,FileName)  
+        %     varname = fieldnames(info);
+        %     n = numel(varname);
+        %     pubs = cell(n,1);
+        %     msgs = cell(n,1);
+        %     VarType = cell(n,1);
+        %     for i = 1:n
+        %         VarType{i} = info.(varname{i});
+        %         idx = find(strcmp(VarType{i},obj.matlabType));
+        %         if ~isempty(idx)
+        %             pubs{i} = ros2publisher(obj.node, ...
+        %                 strcat("/estimation_data",string(i)), ...
+        %                 obj.ros2msgType{idx});
+        %             msgs{i} = ros2message(obj.ros2msgType{idx});
+        %         else
+        %             error('Unexpected variable type.')
+        %         end
+        %     end
+        % 
+        %     % Send variables' name and their type in advance
+        %     VarName_join = strjoin(varname,',');topic
+        %     VarType_join = strjoin(VarType,',');
+        %     VarData = strjoin({VarName_join,VarType_join,char(FileName)},'.');
+        %     obj.varpub = ros2publisher(obj.node, ...
+        %                 "/estimation_data0", ...
+        %                 obj.ros2msgType{11});
+        %     obj.varmsg = ros2message(obj.ros2msgType{11});
+        %     obj.varmsg.data = VarData;
+        %     send(obj.varpub,obj.varmsg);
+        % end    
 
-        function [subs,VarName,isNum] = genContollerSubs(obj,VarData)
-            % Estimator to Controller
-            VarName = split(VarData{1},',');
-            VarType = split(VarData{2},',');
-            n = numel(VarType);
-            subs = cell(n,1);
-            idx = zeros(n,1);
-            for i = 1:n
-                idx(i) = find(strcmp(VarType{i},obj.matlabType),1);
-                if ~isempty(idx(i))
-                    subs{i} = ros2subscriber(obj.node, ...
-                                strcat("/estimation_data",string(i)), ...
-                                obj.ros2msgType{idx(i)});        
-                else
-                    error('Unexpected variable type.')
-                end
-            end
-            isNum = idx < numel(obj.matlabType)-1;
-        end
+        % function [subs,VarName,isNum] = genContollerSubs(obj,VarData)
+        %     % Estimator to Controller
+        %     VarName = split(VarData{1},',');
+        %     VarType = split(VarData{2},',');
+        %     n = numel(VarType);
+        %     subs = cell(n,1);
+        %     idx = zeros(n,1);
+        %     for i = 1:n
+        %         idx(i) = find(strcmp(VarType{i},obj.matlabType),1);
+        %         if ~isempty(idx(i))
+        %             subs{i} = ros2subscriber(obj.node, ...
+        %                         strcat("/estimation_data",string(i)), ...
+        %                         obj.ros2msgType{idx(i)});        
+        %         else
+        %             error('Unexpected variable type.')
+        %         end
+        %     end
+        %     isNum = idx < numel(obj.matlabType)-1;
+        % end
 
         function genSensorSubs(obj)
-            if obj.mode == 2 % gazebo
-                m = numel(obj.gSensorTopicSubs);
-                subs = obj.gSensorTopicSubs;
-                msgs = obj.gSensorMsgtypeSubs;
-                qos = obj.gqos_profile;
-            else
-                m = numel(obj.SensorTopicSubs);
-                subs = obj.SensorTopicSubs;
-                msgs = obj.SensorMsgtypeSubs;
-                qos = obj.qos_profile;
+            switch obj.vehicleType
+                case 1
+                    if obj.mode == 2 % gazebo
+                        m = numel(obj.gSensorTopicSubs);
+                        subs = obj.gSensorTopicSubs;
+                        msgs = obj.gSensorMsgtypeSubs;
+                        qos = obj.gqos_profile;
+                    else
+                        m = numel(obj.SensorTopicSubs);
+                        subs = obj.SensorTopicSubs;
+                        msgs = obj.SensorMsgtypeSubs;
+                        qos = obj.qos_profile;
+                    end
+                case 2
+                    m = numel(obj.SensorTopicSubsCR2);
+                    subs = obj.SensorTopicSubsCR2;
+                    msgs = obj.SensorMsgTypeSubsCR2;
+                    qos = obj.gqos_profile;
             end
             obj.sensorSubs = cell(m,1);
             for i = 1:m
@@ -185,23 +194,23 @@ classdef ROS2CommManager < handle
             obj.msg_cmdvel = ros2message(obj.whillPubs);
         end
 
-        function send_msgs_toCtrl(obj,cnt,EstData,EstVarName,pubs,msgs)
-            if ~isempty(EstData)
-                for k = 1:length(pubs)
-                    if ~isa(EstData.(EstVarName{k}), 'string') && ~isa(EstData.(EstVarName{k}), 'char')
-                        msgs{k}.layout.dim.label = char(join(string(size(EstData.(EstVarName{k}))),","));
-                        msgs{k}.layout.data_offset = uint32(cnt); % Sequence
-                    else
-                        EstData.(EstVarName{k}) = char(join([string(cnt),EstData.(EstVarName{k})],","));
-                    end
-                    msgs{k}.data = EstData.(EstVarName{k});
-                    % send(pubs{k}, msgs{k});
-                end
-                for k = 1:length(pubs)
-                    send(pubs{k}, msgs{k});
-                end
-            end
-        end
+        % function send_msgs_toCtrl(obj,cnt,EstData,EstVarName,pubs,msgs)
+        %     if ~isempty(EstData)
+        %         for k = 1:length(pubs)
+        %             if ~isa(EstData.(EstVarName{k}), 'string') && ~isa(EstData.(EstVarName{k}), 'char')
+        %                 msgs{k}.layout.dim.label = char(join(string(size(EstData.(EstVarName{k}))),","));
+        %                 msgs{k}.layout.data_offset = uint32(cnt); % Sequence
+        %             else
+        %                 EstData.(EstVarName{k}) = char(join([string(cnt),EstData.(EstVarName{k})],","));
+        %             end
+        %             msgs{k}.data = EstData.(EstVarName{k});
+        %             % send(pubs{k}, msgs{k});
+        %         end
+        %         for k = 1:length(pubs)
+        %             send(pubs{k}, msgs{k});
+        %         end
+        %     end
+        % end
 
         function send_msgs_toWhill(obj,cmd)
             V = cmd.V;
@@ -230,12 +239,12 @@ classdef ROS2CommManager < handle
             
         end
 
-        function stopController(obj)
-            obj.varmsg.data = 'stop';
-            send(obj.varpub,obj.varmsg);
-
-
-        end
+        % function stopController(obj)
+        %     obj.varmsg.data = 'stop';
+        %     send(obj.varpub,obj.varmsg);
+        % 
+        % 
+        % end
 
         function [data, Plant] = getSensorData(obj)
             [data ,Plant] = obj.Sens.getSensorData(obj.sensorSubs, obj.whillSubs);

@@ -36,7 +36,7 @@ classdef SensorFetcher < handle
             if obj.mode == 1
                 return;
             end
-            if ~obj.sensorIdx(1) && obj.sensorIdx(4) && obj.mode == 3
+            if ~obj.sensorIdx(1) && (obj.sensorIdx(4)||obj.sensorIdx(5)) && obj.mode == 3
                 error("Localizer need to LiDAR. Please confirm LiDAR's sensor-index is true.")   
             end
             tStart = tic;
@@ -53,6 +53,9 @@ classdef SensorFetcher < handle
                 end
                 if ~isempty(sensorSubs{4}) || obj.mode == 2
                     ret{4} = sensorSubs{4}.LatestMessage;
+                end
+                if ~isempty(sensorSubs{5})
+                    ret{5} = sensorSubs{5}.LatestMessage;
                 end
                 if obj.nostd || ~isempty(ret{obj.baseSensor})
                     break;
@@ -93,7 +96,7 @@ classdef SensorFetcher < handle
                 data.CAMERA = ret{3};
                 doProcessing = 1;
             end
-            if (obj.sensorIdx(4) || obj.mode==2) && ~isempty(ret{4})
+            if (obj.sensorIdx(4)|| obj.sensorIdx(5) || obj.mode==2) && (~isempty(ret{4}) || ~isempty(ret{5}))
                 % temp = Localizer.main(rosReadXYZ(data.LIDAR));
                 % data.SelfPos = temp.Matching_pose.Translation;
                 if obj.mode==2
@@ -104,7 +107,7 @@ classdef SensorFetcher < handle
                     ang(2) = ret{4}.orientation.x;
                     ang(3) = ret{4}.orientation.y;
                     ang(4) = ret{4}.orientation.z;
-                elseif obj.mode==3
+                elseif obj.mode==3 && obj.sensorIdx(4) % SLAM
                     Plant.X = ret{4}.pose.position.x;
                     Plant.Y = ret{4}.pose.position.y;
                     Plant.Z = ret{4}.pose.position.z;
@@ -112,8 +115,16 @@ classdef SensorFetcher < handle
                     ang(2) = ret{4}.pose.orientation.x;
                     ang(3) = ret{4}.pose.orientation.y;
                     ang(4) = ret{4}.pose.orientation.z;
+                elseif obj.mode==3 && obj.sensorIdx(5) % Matching
+                    Plant.X = ret{5}.pose.pose.position.x;
+                    Plant.Y = ret{5}.pose.pose.position.y;
+                    Plant.Z = ret{5}.pose.pose.position.z;
+                    ang(1) = ret{5}.pose.pose.orientation.w;
+                    ang(2) = ret{5}.pose.pose.orientation.x;
+                    ang(3) = ret{5}.pose.pose.orientation.y;
+                    ang(4) = ret{5}.pose.pose.orientation.z;
                 end
-                eul = quat2eul(ang);
+                eul = quat2eul(ang,"ZYX");
                 Plant.Yaw = eul(1);
                 Plant.Pitch = eul(2);
                 Plant.Roll = eul(3);
