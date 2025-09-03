@@ -35,12 +35,27 @@ function plot_preprocesser(folderPath)
         EstResult.(BaseName{10})(n,:) = Estimate{n,1}.Plant.odom;
         
         for m = 1:numAllEstVar-numBase
-            try
-                % User difined data
-                EstResult.(udVarName{m}){n,1} = Estimate{n,1}.(udVarName{m});
-            catch
-                EstResult.(udVarName{m}){n,1} = [];
+            if n ~= 1
+                try
+                    % User difined data
+                    EstResult.(udVarName{m})(n,1) = Estimate{n,1}.(udVarName{m});
+                catch
+                    EstResult.(udVarName{m})(n,1) = [];
+                end
+            else
+                try
+                    % User difined data
+                    EstResult.(udVarName{m}) = Estimate{n,1}.(udVarName{m});
+                catch
+                    EstResult.(udVarName{m}) = [];
+                end
             end
+            % try
+            %     % User difined data
+            %     EstResult.(udVarName{m}){n,1} = Estimate{n,1}.(udVarName{m});
+            % catch
+            %     EstResult.(udVarName{m}){n,1} = [];
+            % end
                 
         end
         T_Est(n) = Estimate{n,1}.T;
