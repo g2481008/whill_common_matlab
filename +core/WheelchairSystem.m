@@ -37,14 +37,14 @@ classdef WheelchairSystem < handle
                 % Main process
                 [sens,Plant] = obj.Mode.receiveData();
                 [resEst,sendData]  = obj.Est.main(sens, Plant,obj.Timer.elapsed());
+                resEst.T = posixtime(datetime('now'));
                 resCtrl  = obj.Ctrl.main(sendData,obj.Timer.elapsed());
+                resCtrl.T = posixtime(datetime('now'));
                 cmd = struct('V',resCtrl.V,'sequence',obj.cnt);
                 obj.Mode.sendData(cmd);
 
                 % Post process
                 resEst.send = sendData;
-                resEst.T = posixtime(datetime('now'))*1000;
-                resCtrl.T = posixtime(datetime('now'))*1000;
                 resEst.sequence = obj.cnt;
                 resCtrl.sequence = obj.cnt;
                 result = struct('Estimator',resEst, 'Controller',resCtrl);

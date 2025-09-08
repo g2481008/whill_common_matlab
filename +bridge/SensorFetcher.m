@@ -54,7 +54,7 @@ classdef SensorFetcher < handle
                 if ~isempty(sensorSubs{4}) || obj.mode == 2
                     ret{4} = sensorSubs{4}.LatestMessage;
                 end
-                if ~isempty(sensorSubs{5})
+                if obj.mode == 3 && ~isempty(sensorSubs{5})
                     ret{5} = sensorSubs{5}.LatestMessage;
                 end
                 if obj.nostd || ~isempty(ret{obj.baseSensor})

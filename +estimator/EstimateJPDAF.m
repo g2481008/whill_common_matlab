@@ -156,7 +156,7 @@ classdef EstimateJPDAF < handle
             [labels,PCA_PtCloud] = ...
                 clustring_PCA(nonGroundPtCloud.Location,current,obj.pms_clstPCA,obj.pms_ROI);
 
-            numClusters = size(labels,1);
+            numClusters = length(unique(labels));
             observation = NaN(numClusters,3);
             obsPC = cell(numClusters,1);
 

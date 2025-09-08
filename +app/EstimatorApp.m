@@ -73,7 +73,7 @@ classdef EstimatorApp < handle
                 [result,sendData] = obj.Est.main(obj.sensordata, obj.Plant,obj.Timer.elapsed());  % Estimator
                 sendData.sequence = obj.EstSHM.write(sendData,obj.seq); % Send to Controller
                 result.send = sendData;
-                result.T = posixtime(datetime('now'))*1000;
+                result.T = posixtime(datetime('now'));
                 obj.DLog.addData(result);
             end
         end

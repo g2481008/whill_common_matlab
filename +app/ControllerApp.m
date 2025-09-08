@@ -53,7 +53,7 @@ classdef ControllerApp < handle
                 result = obj.Ctrl.main(obj.est,obj.Timer.elapsed());
                 d = struct('V',result.V,'sequence',obj.est.sequence);
                 obj.CmdSHM.write(d,obj.est.sequence);
-                result.T = posixtime(datetime('now'))*1000;
+                result.T = posixtime(datetime('now'));
                 result.sequence = obj.est.sequence;
                 obj.DLog.addData(result);
             end

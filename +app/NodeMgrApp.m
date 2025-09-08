@@ -72,7 +72,7 @@ classdef NodeMgrApp < handle
             else
                 result.sequence_cmd = uint32(0);
             end
-            result.T = posixtime(datetime('now'))*1000;
+            result.T = posixtime(datetime('now'));
             obj.DLog.addData(result)
             drawnow
         end

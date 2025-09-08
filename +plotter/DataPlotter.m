@@ -34,11 +34,11 @@ function DataPlotter(DATAPath,cfg)
         keepAllSequences = 0; % 無効な時系列の保持
         plot3session_preprocesser(DATAdir,keepAllSequences) 
         load(strcat(DATAdir,filesep,"userLocal.mat"),"userLocal")
-        T = seconds((userLocal.tNode - userLocal.tNode(1))/1000);
+        T = seconds((userLocal.tNode - userLocal.tNode(1)));
     else
         plot_preprocesser(DATAdir) 
         load(strcat(DATAdir,filesep,"userLocal.mat"),"userLocal")
-        T = seconds((userLocal.Time - userLocal.Time(1))/1000);
+        T = seconds((userLocal.Time - userLocal.Time(1)));
     end
     
     starttime = min(T);

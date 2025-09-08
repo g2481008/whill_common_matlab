@@ -24,7 +24,7 @@ classdef Estimate2 < handle
         SendVarSpec = struct( ...
                             'pose' , struct('Type','double','MaxSize',[1 3]));
         %==========================
-        Allxhat % Example
+        Allxhat = 1 % Example
         mode
         udd
 
