@@ -28,6 +28,7 @@ classdef RealMode < mode.ModeStrategy
         end
         function shutdown(obj)
             Spr = utils.SpinnerStatus('Shutting down the ROS2 node. This process will take 5 seconds...');
+            close(findall(groot, 'Type', 'figure'));
             rosshutdown
             pause(5)
             Spr.done('Finished.')

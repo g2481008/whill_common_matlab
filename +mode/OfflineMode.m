@@ -17,6 +17,7 @@ classdef OfflineMode < mode.ModeStrategy
         function exeProcess(~,~), end
         function sendData(obj, cmd), end
         function shutdown(obj)
+            close(findall(groot, 'Type', 'figure'));
             disp("Finished.")
         end
     end
