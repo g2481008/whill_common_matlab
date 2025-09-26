@@ -33,7 +33,7 @@ classdef SHMMode < session.SessionStrategy
         function start(obj)
             switch obj.sessionRole
                 case 'initiator'
-                    utils.waitPressEnterkey(); % start
+                    utils.waitPressEnterkey(obj.Stopper); % start
                     d.working = 1;
                     obj.SMgrSHM.write(d);
                 case 'participant'
