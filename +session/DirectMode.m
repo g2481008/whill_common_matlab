@@ -11,10 +11,15 @@ classdef DirectMode < session.SessionStrategy
             obj.sessionRole = role;
             obj.Stopper = session.createKeyCon();
             if cfg.modeNumber == 1
-                S = load(cfg.offlinePath);
-                uddname = fieldnames(S);
-                udd = S.(uddname{1});
-                obj.numStep = size(udd,1);
+                if exist(cfg.offlinePath,"file")
+                    S = load(cfg.offlinePath);
+                    uddname = fieldnames(S);
+                    udd = S.(uddname{1});
+                    obj.numStep = size(udd,1);
+                else
+                    warning("Matfile not found. Using ""tend"" instead.")
+                    obj.numStep = cfg.tend/cfg.tspan;
+                end
             end
         end
         function start(obj)

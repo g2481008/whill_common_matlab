@@ -18,8 +18,8 @@ classdef ROS2CommManager < handle
 
         % Wheelchair {1}:CR, {2}:CR2-----------------------------------------------------------------------------------------
         % x: left wheel(positive:CCW), y:right wheel(positive:CW,clockwise), z:dummy wheel
-        WhillTopicSubs = {'/Drp5_green/whill_node/motor_speed','/whill/states/model_cr2'};
-        WhillTopicPubs = {'/Drp5_green/whill_node/cmd_vel','whill_msgs/ModelCr2State'};
+        WhillTopicSubs = {'/Drp5_whill/whill_node/motor_speed','/whill/states/model_cr2'};
+        WhillTopicPubs = {'/Drp5_whill/whill_node/cmd_vel','whill_msgs/ModelCr2State'};
         WhillMsgtypeSubs = {'geometry_msgs/Vector3','/whill/controller/cmd_vel'};
         WhillMsgtypePubs = {'geometry_msgs/Twist','geometry_msgs/Twist'};
         % Gazebo

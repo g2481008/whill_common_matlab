@@ -18,11 +18,16 @@ base_sensor = 1; % Standard sensor you use mainly. No standard:0, LiDAR:1, GNSS:
 tspan = 0.05; % Sensor frequency which is corresponded to standard sensor
 %% Mode configurations
 mode = 3; % 1:Offline, 2:Gazebo simulation, 3:Real exp.
-offlinePath = "/home/student/Program/matlab_common/data/20250613/20250613_171110/userLocal.mat";
+% Offline: Path to MAT file
+% The number of time series data points required for execution is automatically detected.
+offlinePath = "/path/to/your/userLocal.mat"; 
+tend = 20; % Offline: If NO MAT file is loaded, set any time value (sec).
 isParallel = false;
 isMultiPC = false;
 %% ROS2 configurations
 RID = 11;
+%% Enable Manual Control using Joystick
+manualCon = false;
 %% Module configurations
 % Save file path
 mySavePath = './data';
@@ -49,11 +54,12 @@ cfg = struct( ...
     "vehicleType" , vehicleType, ...
     "tspan"       , tspan, ...
     "offlinePath" , offlinePath, ...
+    "tend"        , tend, ...
     "rosNamespace", "matlab", ...
     "estimator"   , estimator, ...
     "controller"  , controller, ...
     "logger"      , logger, ...
-    "manualCon"   , false);
+    "manualCon"   , manualCon);
 
 sys = core.SystemFactory.build(cfg);
 sys.run();
