@@ -175,7 +175,7 @@ classdef EstimateJPDAF < handle
             end
 
             % -----オブジェクト追跡-------------------------------------------
-            [confirmedTracks,tentative,alltracks,info,detections,detection_forplot,pos,cov,vel,meas,measCov] = pedestrianTracker2(observation,current,obj.pms_JPDAF);
+            [confirmedTracks,tentative,alltracks,info,detections,pos,cov,vel,meas,measCov] = pedestrianTracker2(observation,current,obj.pms_JPDAF);
 
             obj.preTrack = confirmedTracks;
 
@@ -190,7 +190,6 @@ classdef EstimateJPDAF < handle
             
             result.plane        = ptCloud;
             result.detection    = detections;
-            result.detection_forplot = detection_forplot;
             result.confirmd     = {confirmedTracks};
             result.obstacleIndices  = {idxSet(not(groundPtsIdx))'};
             result.pos          = {pos};

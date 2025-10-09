@@ -1,6 +1,6 @@
-function [confirmed,tentative,alltracks,info,detection,detection_forplot,pos,cov,vel,meas,measCov] = pedestrianTracker2(observation,currentInfo,pms)
+function [confirmed,tentative,alltracks,info,detection,pos,cov,vel,meas,measCov] = pedestrianTracker2(observation,currentInfo,pms)
 
-    [confirmed,tentative,alltracks,info,detection,detection_forplot] = tracker_prog(observation,currentInfo,pms);
+    [confirmed,tentative,alltracks,info,detection] = tracker_prog(observation,currentInfo.time,pms.MeasurementNoise);
 
     [pos,cov] = getTrackPositions(confirmed,pms.positionSelector);
     vel = getTrackVelocities(confirmed,pms.velocitySelector);
