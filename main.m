@@ -9,6 +9,7 @@ conf.fcheck= and(~contains(conf.fpath, matlabroot), ~contains(conf.fpath, conf.d
 rmpath(strjoin(conf.fpath(conf.fcheck), conf.mk(conf.pc)));
 %% Sensor configurations
 vehicleType = 1; % 1:CR1, 2:CR2
+vehicleColor = "red"; % {"red","white"}
 sensor(1) = true; % LiDAR
 sensor(2) = false; % GNSS
 sensor(3) = false; % Camera
@@ -42,7 +43,7 @@ controller = controller.Control2();
 logger = logger.DataLogger(Datadir,'tmp');
 
 % Activation paralell worker
-if isempty(gcp('nocreate')), parpool; end
+% if isempty(gcp('nocreate')), parpool; end
 
 cfg = struct( ...
     "modeNumber"  , mode, ...
