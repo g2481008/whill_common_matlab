@@ -5,13 +5,14 @@ classdef RealMode < mode.ModeStrategy
         cmdMsg
     end
     methods
-        function obj = RealMode(vehType, idx, rid, nodename, baseSens, manualCon)
+        function obj = RealMode(cfg)
+            % cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor,cfg.manualCon
             disp("Setting up ROS2 configuration for experiment mode")
             setenv('RMW_IMPLEMENTATION','rmw_fastrtps_cpp')
             setenv("FASTDDS_BUILTIN_TRANSPORTS","UDPv4") % Avoid SHM communication
             setenv("ROS_LOCALHOST_ONLY","0")
-            obj.Comm = bridge.ROS2CommManager(vehType, 3, idx, nodename, rid, baseSens);
-            obj.manual = manualCon;
+            obj.Comm = bridge.ROS2CommManager(cfg,3);
+            obj.manual = cfg.manualCon;
         end
         function setup(obj)
             obj.Comm.genSensorSubs();

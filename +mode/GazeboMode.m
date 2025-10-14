@@ -12,12 +12,13 @@ classdef GazeboMode < mode.ModeStrategy
         
     end
     methods
-        function obj = GazeboMode(vehType, idx, rid, nodename, baseSens)
+        function obj = GazeboMode(cfg)
+            % cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor
             disp("Setting up ROS2 configuration for Gazebo mode")
             setenv('RMW_IMPLEMENTATION','rmw_cyclonedds_cpp')
             setenv("FASTDDS_BUILTIN_TRANSPORTS","UDPv4")
             setenv("ROS_LOCALHOST_ONLY","1")
-            obj.Comm = bridge.ROS2CommManager(vehType, 2, idx, nodename, rid,baseSens);
+            obj.Comm = bridge.ROS2CommManager(cfg,2);
             % obj.Sensfet = bridge.SensorFetcher(2,vehType,idx,baseSens);
         end
         function setup(obj)

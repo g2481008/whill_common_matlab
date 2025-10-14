@@ -46,7 +46,6 @@ classdef Estimate2 < handle
             result.RawData = sensordata;
             result.Plant = Plant;
             
-            
             % save data
             result.xhat = obj.Allxhat; % example
             

@@ -17,9 +17,10 @@ classdef ROS2CommManager < handle
         gSensorMsgtypeSubs = {'sensor_msgs/PointCloud2',[],[],'geometry_msgs/Pose'};
 
         % Wheelchair {1}:CR, {2}:CR2-----------------------------------------------------------------------------------------
-        % x: left wheel(positive:CCW), y:right wheel(positive:CW,clockwise), z:dummy wheel
-        WhillTopicSubs = {'/Drp5_whill/whill_node/motor_speed','/whill/states/model_cr2'};
-        WhillTopicPubs = {'/Drp5_whill/whill_node/cmd_vel','whill_msgs/ModelCr2State'};
+        % x: Right wheel, y:Left wheel
+        % WhillTopicSubs = {'/Drp5_whill/whill_node/motor_speed','/whill/states/model_cr2'};
+        % WhillTopicPubs = {'/Drp5_whill/whill_node/cmd_vel','whill_msgs/ModelCr2State'};
+        WhillColOpt = {'red','white'}
         WhillMsgtypeSubs = {'geometry_msgs/Vector3','/whill/controller/cmd_vel'};
         WhillMsgtypePubs = {'geometry_msgs/Twist','geometry_msgs/Twist'};
         % Gazebo
@@ -39,9 +40,13 @@ classdef ROS2CommManager < handle
     end
 
     properties
+        WhillTopicSubs = {'/empty/whill_node/motor_speed','/whill/states/model_cr2'};
+        WhillTopicPubs = {'/empty/whill_node/cmd_vel','whill_msgs/ModelCr2State'};
+
         varpub
         varmsg
         vehicleType
+        vehicleColor
         mode
         sensorIdx
         whillPubs
@@ -52,7 +57,6 @@ classdef ROS2CommManager < handle
         cmdMissed=0;
         prevCmd
 
-
     end
     properties (Access=private)
         node
@@ -60,12 +64,16 @@ classdef ROS2CommManager < handle
     end
 
     methods
-        function obj = ROS2CommManager(vehicleType,mode,sensorIdx,nodeName,rid,baseSens)
-            obj.vehicleType = vehicleType;
+        function obj = ROS2CommManager(cfg,mode)
+            % cfg.vehicleType, 3, cfg.sensorIdx, cfg.rosNamespace, cfg.RID, cfg.base_sensor
+            % cfg.vehicleType, 2, cfg.sensorIdx, cfg.rosNamespace, cfg.RID, cfg.base_sensor
+            obj.vehicleType = cfg.vehicleType;
+            obj.vehicleColor = cfg.vehicleColor;
             obj.mode = mode;
-            obj.sensorIdx = sensorIdx;
-            obj.node = bridge.ROS2CommManager.createNode(nodeName,rid);
-            obj.Sens = bridge.SensorFetcher(mode,vehicleType,sensorIdx,baseSens);
+            obj.sensorIdx = cfg.sensorIdx;
+            obj.node = bridge.ROS2CommManager.createNode(cfg.rosNamespace,cfg.RID);
+            obj.Sens = bridge.SensorFetcher(cfg.modeNumber,cfg.vehicleType,cfg.sensorIdx,cfg.base_sensor);
+            
         end
 
         % function [pubs,msgs,varname] = genEstimatorPubs(obj,info,FileName)  
@@ -160,6 +168,7 @@ classdef ROS2CommManager < handle
                 msgs = obj.gWhillMsgtypeSubs;
                 qos = obj.gqos_profile;
             else
+                obj.WhillTopicSubs = setWhillColor(obj,obj.WhillTopicSubs);
                 subs = obj.WhillTopicSubs;
                 msgs = obj.WhillMsgtypeSubs;
                 qos = obj.qos_profile;
@@ -180,6 +189,7 @@ classdef ROS2CommManager < handle
                 qos = obj.gqos_profile;
                 qos.Reliability = "reliable"; % Fixing for sfm gazebo
             else
+                obj.WhillTopicPubs = setWhillColor(obj,obj.WhillTopicPubs);
                 pubs = obj.WhillTopicPubs;
                 msgs = obj.WhillMsgtypePubs;
                 qos = obj.qos_profile;
@@ -250,6 +260,18 @@ classdef ROS2CommManager < handle
             [data ,Plant] = obj.Sens.getSensorData(obj.sensorSubs, obj.whillSubs);
         end
 
+    end
+    methods (Access=private)
+        function topic = setWhillColor(obj,topic)
+            color = char(lower(obj.vehicleColor));
+            if ~ismember(color,obj.WhillColOpt)
+                error('InvalidColor:NotRecognized', ...
+                    'The specified color "%s" is invalid. Valid options are: %s.', ...
+                    color, strjoin(colors, ', '));
+            end
+            prefix = ['/Drp5_whill_' color '/'];
+            topic{1} = regexprep(topic{1}, '^(.*/)(whill_node.*)$', [prefix '$2']);
+        end
     end
     methods (Static, Access=private)
         function n = createNode(nodeName,rid)

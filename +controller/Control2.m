@@ -23,7 +23,6 @@ classdef Control2 < handle
             
             result.V = [0;0];
             
-            
         end
     end
 end
