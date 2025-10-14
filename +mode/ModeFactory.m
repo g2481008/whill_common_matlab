@@ -3,11 +3,11 @@ classdef ModeFactory
         function modeObj = build(cfg)
             switch cfg.modeNumber
                 case 1
-                    modeObj = mode.OfflineMode(cfg.offlinePath, cfg.sensorIdx);
+                    modeObj = mode.OfflineMode(cfg);
                 case 2
-                    modeObj = mode.GazeboMode(cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor);
+                    modeObj = mode.GazeboMode(cfg);
                 case 3
-                    modeObj = mode.RealMode(cfg.vehicleType, cfg.sensorIdx, cfg.RID, cfg.rosNamespace, cfg.base_sensor,cfg.manualCon);
+                    modeObj = mode.RealMode(cfg);
                 otherwise
                     error("unknown modeNumber");
             end

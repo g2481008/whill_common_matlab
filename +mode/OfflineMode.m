@@ -4,10 +4,11 @@ classdef OfflineMode < mode.ModeStrategy
         sensorIdx
     end
     methods
-        function obj = OfflineMode(path, idx)
+        function obj = OfflineMode(cfg)
+            % cfg.offlinePath, cfg.sensorIdx
             disp("Setting up Offline mode")
-            obj.path = path;
-            obj.sensorIdx = idx;
+            obj.path = cfg.offlinePath;
+            obj.sensorIdx = cfg.sensorIdx;
         end
         function setup(obj), end
         function [data,Plant] = receiveData(obj)

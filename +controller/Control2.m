@@ -23,7 +23,7 @@ classdef Control2 < handle
         function [result,sendEst] = main(obj,Est,T)
             
             
-            result.V = [0;0];
+            result.V = [1;0];
             
             sendEst = [];
             
