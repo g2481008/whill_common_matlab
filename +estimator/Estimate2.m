@@ -10,8 +10,6 @@ classdef Estimate2 < handle
     % 行列可: {'int8','uint8','int16','uint16','int32','uint32','int64','uint64','single','double'}
     % 不可: {'string','char'}
     % "send"を構造体とし，送信したいデータを対応する変数に代入．
-    %% Controllerからのフィードバック
-    % mainメソッドの入力引数"Ctrl"から取得可能．
     %% 推定結果の保存
     % "result"を構造体とし，保存したい値を格納．
 
@@ -39,12 +37,12 @@ classdef Estimate2 < handle
             
             if obj.mode == 1
                 % Load matfile
-                % obj.udd = load(OfflinePath);
+                obj.udd = load(OfflinePath);
             end
 
         end
 
-        function [result,send] = main(obj,sensordata,Plant,Ctrl,T)
+        function [result,send] = main(obj,sensordata,Plant,T)
             result.RawData = sensordata;
             result.Plant = Plant;
             
@@ -54,8 +52,7 @@ classdef Estimate2 < handle
             
 
             % send to Controller
-            % send.pose = [Plant.X, Plant.Y, Plant.Yaw];
-            send = [];
+            send.pose = [Plant.X, Plant.Y, Plant.Yaw];
             
 
 
