@@ -37,11 +37,9 @@ classdef WheelchairSystem < handle
                 obj.cnt = obj.cnt + 1;
                 % Main process
                 [sens,Plant] = obj.Mode.receiveData();
-                % [resEst,sendData]  = obj.Est.main(sens, Plant,obj.ctrlFB,obj.Timer.elapsed());
                 [resEst,sendData]  = obj.Est.main(sens, Plant,obj.Timer.elapsed());
                 resEst.T = posixtime(datetime('now'));
-                % [resCtrl, obj.ctrlFB]  = obj.Ctrl.main(sendData,obj.Timer.elapsed());
-                resCtrl  = obj.Ctrl.main(sendData,obj.Timer.elapsed());
+                [resCtrl]  = obj.Ctrl.main(sendData,obj.Timer.elapsed());
                 resCtrl.T = posixtime(datetime('now'));
                 cmd = struct('V',resCtrl.V,'sequence',obj.cnt);
                 obj.Mode.sendData(cmd);

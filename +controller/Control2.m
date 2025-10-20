@@ -18,7 +18,7 @@ classdef Control2 < handle
             
         end
 
-        function result = main(obj,Est,T)
+        function [result] = main(obj,Est,T)
             
             
             result.V = [0;0];

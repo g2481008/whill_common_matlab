@@ -37,7 +37,7 @@ classdef Estimate2 < handle
             
             if obj.mode == 1
                 % Load matfile
-                obj.udd = load(OfflinePath);
+                % obj.udd = load(OfflinePath);
             end
 
         end
@@ -52,7 +52,8 @@ classdef Estimate2 < handle
             
 
             % send to Controller
-            send.pose = [Plant.X, Plant.Y, Plant.Yaw];
+            % send.pose = [Plant.X, Plant.Y, Plant.Yaw];
+            send = [];
             
 
 
