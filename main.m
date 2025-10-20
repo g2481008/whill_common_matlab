@@ -18,7 +18,7 @@ sensor(5) = false; % Matching (Only EXP)
 base_sensor = 1; % Standard sensor you use mainly. No standard:0, LiDAR:1, GNSS:2, Camera:3
 tspan = 0.05; % Sensor frequency which is corresponded to standard sensor
 %% Mode configurations
-mode = 1; % 1:Offline, 2:Gazebo simulation, 3:Real exp.
+mode = 3; % 1:Offline, 2:Gazebo simulation, 3:Real exp.
 % Offline: Path to MAT file
 % The number of time series data points required for execution is automatically detected.
 offlinePath = "/path/to/your/userLocal.mat"; 
