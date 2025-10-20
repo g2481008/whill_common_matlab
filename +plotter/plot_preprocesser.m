@@ -1,4 +1,4 @@
-function plot_preprocesser(folderPath)
+function plot_preprocesser(folderPath,mode)
     disp("Sorting data...")
     FileName = strcat(folderPath,filesep,"userLocal_tmp.mat");
 
@@ -12,12 +12,16 @@ function plot_preprocesser(folderPath)
 
     RawData = struct("LiDAR",[],"GNSS",[],"CAMERA",[], ...
         "X",[],"Y",[],"Z",[],"Roll",[],"Pitch",[],"Yaw",[],"odom",[]);
-    BaseName = fieldnames(RawData);
-    numBase = numel(BaseName);
+    BaseName = fieldnames(RawData);    
+    if mode == 1
+        numBase = 0;
+    else
+        numBase = numel(BaseName);
+    end    
     AllEstVarName = fieldnames(Estimate{1,1});
     udVarName = setdiff(AllEstVarName, {'RawData','Plant','send','T'});
-    AllEstVar = vertcat(BaseName,udVarName);
-    numAllEstVar = numel(AllEstVar);
+    % AllEstVar = vertcat(BaseName,udVarName);
+    numAllEstVar = numBase+numel(udVarName);
     numTSdata = numel(Estimate);
     % seq_Est = zeros(numTSdata,1);
     % T_Est = zeros(numTSdata,1);

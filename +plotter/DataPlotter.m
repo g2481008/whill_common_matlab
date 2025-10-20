@@ -36,7 +36,7 @@ function DataPlotter(DATAPath,cfg)
         load(strcat(DATAdir,filesep,"userLocal.mat"),"userLocal")
         T = seconds((userLocal.tNode - userLocal.tNode(1)));
     else
-        plot_preprocesser(DATAdir) 
+        plot_preprocesser(DATAdir,mode) 
         load(strcat(DATAdir,filesep,"userLocal.mat"),"userLocal")
         T = seconds((userLocal.Time - userLocal.Time(1)));
     end
