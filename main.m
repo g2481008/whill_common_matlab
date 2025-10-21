@@ -43,6 +43,7 @@ cameraparamPath = "./cameracalibparam/internal_param_fix.mat";
 % You can supply your own class instead of default if you need.
 % addpath(genpath("./MyEstimate"))
 estimator = estimator.Estimate2(mode,offlinePath);
+% Camera LiDAR Fusion package
 % addpath(genpath("./LiDARCamera"))
 % estimator = estimator.EstimateLC(mode,offlinePath,calibparamPath,cameraparamPath);
 controller = controller.Control2();
