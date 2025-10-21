@@ -36,9 +36,15 @@ mySaveFileName = string(datetime("now","Format","yyyyMMdd_HHmmss"));
 Datadir = strcat(mySavePath,filesep,string(datetime("now","Format","yyyyMMdd")),filesep,mySaveFileName);
 if ~exist(Datadir,"dir"), mkdir(Datadir); end
 
+% LiDAR Camera Caliblation File for Fusion
+calibparamPath = "./cameracalibparam/prefer.mat";
+cameraparamPath = "./cameracalibparam/internal_param_fix.mat";
+
 % You can supply your own class instead of default if you need.
 % addpath(genpath("./MyEstimate"))
 estimator = estimator.Estimate2(mode,offlinePath);
+% addpath(genpath("./LiDARCamera"))
+% estimator = estimator.EstimateLC(mode,offlinePath,calibparamPath,cameraparamPath);
 controller = controller.Control2();
 logger = logger.DataLogger(Datadir,'tmp');
 
