@@ -12,7 +12,7 @@ vehicleType = 1; % 1:CR1, 2:CR2
 vehicleColor = 'red'; % Only EXP. 'red' or 'white'
 sensor(1) = true; % LiDAR
 sensor(2) = false; % GNSS
-sensor(3) = true; % Camera
+sensor(3) = false; % Camera
 sensor(4) = true; % SLAM
 sensor(5) = false; % Matching (Only EXP)
 base_sensor = 1; % Standard sensor you use mainly. No standard:0, LiDAR:1, GNSS:2, Camera:3
@@ -36,12 +36,15 @@ mySaveFileName = string(datetime("now","Format","yyyyMMdd_HHmmss"));
 Datadir = strcat(mySavePath,filesep,string(datetime("now","Format","yyyyMMdd")),filesep,mySaveFileName);
 if ~exist(Datadir,"dir"), mkdir(Datadir); end
 
+% LiDAR Camera Caliblation File for Fusion
 calibparamPath = "./cameracalibparam/prefer.mat";
 cameraparamPath = "./cameracalibparam/internal_param_fix.mat";
 
 % You can supply your own class instead of default if you need.
-addpath(genpath("./LiDARCamera"))
-estimator = estimator.EstimateLC(mode,offlinePath,calibparamPath,cameraparamPath);
+% addpath(genpath("./MyEstimate"))
+estimator = estimator.Estimate2(mode,offlinePath);
+% addpath(genpath("./LiDARCamera"))
+% estimator = estimator.EstimateLC(mode,offlinePath,calibparamPath,cameraparamPath);
 controller = controller.Control2();
 logger = logger.DataLogger(Datadir,'tmp');
 
