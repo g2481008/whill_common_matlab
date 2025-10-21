@@ -26,12 +26,10 @@ classdef DirectMode < session.SessionStrategy
             utils.waitPressEnterkey(obj.Stopper); % start            
         end
         function ret = isWorking(obj,varargin)
-            % ret = obj.Stopper.UserData;
-            if ~isempty(obj.numStep)
-                ret = obj.numStep >= varargin{1};
-            end
-            if ~obj.Stopper.UserData
-                ret = 0;
+            if isempty(obj.numStep) % Otherwise
+                ret = obj.Stopper.UserData;
+            else % Offline
+                ret = obj.Stopper.UserData || obj.numStep >= varargin{1};
             end
         end
         function stop(obj)
