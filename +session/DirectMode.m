@@ -29,7 +29,7 @@ classdef DirectMode < session.SessionStrategy
             if isempty(obj.numStep) % Otherwise
                 ret = obj.Stopper.UserData;
             else % Offline
-                ret = obj.Stopper.UserData || obj.numStep >= varargin{1};
+                ret = obj.Stopper.UserData && obj.numStep >= varargin{1};
             end
         end
         function stop(obj)
