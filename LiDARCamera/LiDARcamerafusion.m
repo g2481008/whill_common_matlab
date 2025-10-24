@@ -1,4 +1,4 @@
-function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud, camdata, intrinsics, tform, scorethreshold, labels)
+function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud, camdata, intrinsics, tform, scorethreshold, LPtcloud, labels)
     
     ObjectLidarPoints = [];
     OLPLabels = [];
@@ -74,7 +74,7 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
         num_obj = 0;
     
         for i = 1 : num_clus
-            cluseterptCloud = pointCloud(ptCloud(labels==labelsidx(i),:)); % クラスタ点群
+            cluseterptCloud = pointCloud(LPtcloud(labels==labelsidx(i),:)); % クラスタ点群
             if ~isempty(ObjectLidarPoints) % カメラの画角内に点群が存在するか
                 if any(min(alllidarPoints(:,1)) <= cluseterptCloud.Location(:,1)) && any(max(alllidarPoints(:,1)) >= cluseterptCloud.Location(:,1)) && ...
                    any(min(alllidarPoints(:,2)) <= cluseterptCloud.Location(:,2)) && any(max(alllidarPoints(:,2)) >= cluseterptCloud.Location(:,2)) && ...
