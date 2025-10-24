@@ -166,10 +166,10 @@ classdef EstimateLC < handle
 
             % -----クラスタリング＋主成分分析-----------------------------------
             [labels,PCA_PtCloud] = ...
-                clustring_PCA(pCloudCrop.Location,obj.pms_clstPCA);
+                clustring_PCA(pCloudCrop,obj.pms_clstPCA);
             
             % -----カメラ・LiDARフュージョン-----------------------------------
-            [ObjectData,Objectpt,labels] = LiDARcamerafusion(nonGroundPtCloud, PCA_PtCloud, camdata, obj.intrinsics, obj.tform, obj.scorethreshold,PCA_PtCloud,labels);
+            [ObjectData,Objectpt,labels] = LiDARcamerafusion(nonGroundPtCloud, PCA_PtCloud, camdata, obj.intrinsics, obj.tform, obj.scorethreshold, labels);
             % 地面除去をした点群(nonGroundPtCloud)(壁などの点群有)と追跡対象のみの点群(PCA_PtCloud)(壁などの点群無)の両方を引数にする．クラスタリングなどの手法は各々で変化してください．
             
             numClusters = size(ObjectData,1);
