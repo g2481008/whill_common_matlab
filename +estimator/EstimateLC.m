@@ -112,15 +112,15 @@ classdef EstimateLC < handle
             end
 
             % -----自己位置・姿勢-------------------------------------
-            current.X     = 0;
-            current.Y     = 0;
-            current.Z     = 0;
-            current.yaw   = 0;
+            % current.X     = 0;
+            % current.Y     = 0;
+            % current.Z     = 0;
+            % current.yaw   = 0;
 
-            % current.X     = Plant.X;
-            % current.Y     = Plant.Y;
-            % current.Z     = Plant.Z;
-            % current.yaw   = Plant.Yaw;   
+            current.X     = Plant.X;
+            current.Y     = Plant.Y;
+            current.Z     = Plant.Z;
+            current.yaw   = Plant.Yaw;   
 
             current.time = T;
             current.dt    = current.time - obj.T_old;   % 経過時間間隔を評価
@@ -162,15 +162,16 @@ classdef EstimateLC < handle
             idxSet = 1:ptCloud.Count;
 
             % -----関心領域内点群切り取り---------------------------------------
-            pCloudCrop = pcCrop(nonGroundPtCloud,current,obj.pms_ROI);
+            [pCloudCrop, pCloudLCS] = pcCrop(nonGroundPtCloud,current,obj.pms_ROI);
 
             % -----クラスタリング＋主成分分析-----------------------------------
             [labels,PCA_PtCloud] = ...
-                clustring_PCA(pCloudCrop.Location,obj.pms_clstPCA);
+                clustring_PCA(pCloudCrop,obj.pms_clstPCA);
             
             % -----カメラ・LiDARフュージョン-----------------------------------
-            [ObjectData,Objectpt,labels] = LiDARcamerafusion(nonGroundPtCloud, PCA_PtCloud, camdata, obj.intrinsics, obj.tform, obj.scorethreshold,PCA_PtCloud,labels);
-            % 地面除去をした点群(nonGroundPtCloud)(壁などの点群有)と追跡対象のみの点群(PCA_PtCloud)(壁などの点群無)の両方を引数にする．クラスタリングなどの手法は各々で変化してください．
+            [ObjectData,Objectpt,labels,ObjectData_fromCamera,ObjectData_fromLiDAR] = LiDARcamerafusion(nonGroundPtCloud, pCloudLCS.Location, PCA_PtCloud, camdata, obj.intrinsics, obj.tform, obj.scorethreshold, labels);
+            % 地面除去をした点群(nonGroundPtCloud)(壁などの点群有)と追跡対象のみの点群(PCA_PtCloud)(壁などの点群無)の両方を引数にする．クラスタリングなどの手法は各々で変更してください．
+            % ObjectData_fromCameraとObjectData_fromLiDARは検証用．開発終わったら消して良い．
             
             numClusters = size(ObjectData,1);
             observation = NaN(numClusters,3);
@@ -217,6 +218,8 @@ classdef EstimateLC < handle
             result.current = current;
             result.obsPC = obsPC;
             result.ObjectData = ObjectData;
+            result.ObjectData_fromCamera = ObjectData_fromCamera;
+            result.ObjectData_fromLiDAR = ObjectData_fromLiDAR;
 
             % send to Controller
             send.pose = [0, 0, 0];

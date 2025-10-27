@@ -1,18 +1,19 @@
-function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud, camdata, intrinsics, tform, scorethreshold, LPtcloud, labels)
+function [ObjectData,Objectpt,new_labels,ObjectData_fromCamera,ObjectData_fromLiDAR] = LiDARcamerafusion(allptCloud,ptCloudLCS, ptCloud, camdata, intrinsics, tform, scorethreshold, labels)
     
     ObjectLidarPoints = [];
     OLPLabels = [];
     ObjectData_fromCamera = {};
+    ObjectData_fromLiDAR = {};
     ObjectData = {};
     
     [~, validIndex] = projectLidarPointsOnImage(allptCloud, intrinsics, tform);
     
     alllidarPoints = allptCloud.Location(validIndex, :);
-    
-    if ~isempty(ptCloud)
-        [imagePoints, validIndex] = projectLidarPointsOnImage(ptCloud, intrinsics, tform);
+
+    if ~isempty(ptCloudLCS)
+        [imagePoints, validIndex] = projectLidarPointsOnImage(ptCloudLCS, intrinsics, tform);
         
-        lidarPoints = ptCloud(validIndex, :);
+        lidarPoints = ptCloudLCS(validIndex, :);
     
         if isempty(camdata)
             num_de = 0;
@@ -74,17 +75,17 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
         num_obj = 0;
     
         for i = 1 : num_clus
-            cluseterptCloud = pointCloud(LPtcloud(labels==labelsidx(i),:)); % クラスタ点群
+            clusterptCloudLCS = pointCloud(ptCloudLCS(labels==labelsidx(i),:)); % クラスタ点群
             if ~isempty(ObjectLidarPoints) % カメラの画角内に点群が存在するか
-                if any(min(alllidarPoints(:,1)) <= cluseterptCloud.Location(:,1)) && any(max(alllidarPoints(:,1)) >= cluseterptCloud.Location(:,1)) && ...
-                   any(min(alllidarPoints(:,2)) <= cluseterptCloud.Location(:,2)) && any(max(alllidarPoints(:,2)) >= cluseterptCloud.Location(:,2)) && ...
-                   any(min(alllidarPoints(:,3)) <= cluseterptCloud.Location(:,3)) && any(max(alllidarPoints(:,3)) >= cluseterptCloud.Location(:,3)) % クラスタ点群がカメラの画角に入っているか
+                if any(min(alllidarPoints(:,1)) <= clusterptCloudLCS.Location(:,1)) && any(max(alllidarPoints(:,1)) >= clusterptCloudLCS.Location(:,1)) && ...
+                   any(min(alllidarPoints(:,2)) <= clusterptCloudLCS.Location(:,2)) && any(max(alllidarPoints(:,2)) >= clusterptCloudLCS.Location(:,2)) && ...
+                   any(min(alllidarPoints(:,3)) <= clusterptCloudLCS.Location(:,3)) && any(max(alllidarPoints(:,3)) >= clusterptCloudLCS.Location(:,3)) % クラスタ点群がカメラの画角に入っているか
         
                     % クラスタ点群範囲内のカメラで抜き出した点群
-                    findidx = ObjectLidarPoints(:,1) >= cluseterptCloud.XLimits(1) ...
-                            & ObjectLidarPoints(:,1) <= cluseterptCloud.XLimits(2) ...
-                            & ObjectLidarPoints(:,2) >= cluseterptCloud.YLimits(1) ...
-                            & ObjectLidarPoints(:,2) <= cluseterptCloud.YLimits(2);
+                    findidx = ObjectLidarPoints(:,1) >= clusterptCloudLCS.XLimits(1) ...
+                            & ObjectLidarPoints(:,1) <= clusterptCloudLCS.XLimits(2) ...
+                            & ObjectLidarPoints(:,2) >= clusterptCloudLCS.YLimits(1) ...
+                            & ObjectLidarPoints(:,2) <= clusterptCloudLCS.YLimits(2);
         
                     OLP = ObjectLidarPoints(findidx,:); % カメラで抜き出した点群
                     OLPLabel =  OLPLabels(findidx);
@@ -93,13 +94,14 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
         
                     if Obj_num > 1 % クラスタ数よりもカメラで識別した物体数の方が多い場合：クラスタを分割
                         OLP_mean = [accumarray(OLPlabelidx, OLP(:,1), [], @mean), accumarray(OLPlabelidx, OLP(:,2), [], @mean), accumarray(OLPlabelidx, OLP(:,3), [], @mean)]; % クラスタ範囲内のカメラで抜き出した点群の重心
-                        [labels_k,Clus_mean] = clustering_kmeans(cluseterptCloud.Location,Obj_num,OLP_mean); % k-means法によるクラスタリング(クラスタを分割)
+                        [labels_k,Clus_mean] = clustering_kmeans(clusterptCloudLCS.Location,Obj_num,OLP_mean); % k-means法によるクラスタリング(クラスタを分割)
                         % ハンガリアン法でクラスタとカメラで抜き出した点群を対応付け
                         cost = pdist2(Clus_mean,OLP_mean,'euclidean');
                         assignment = assignDetectionsToTracks(double(cost),0.5);
                         for j = 1 : Obj_num
                             num_obj = num_obj + 1;
-                            ObjectData{num_obj,1} = cluseterptCloud.Location(labels_k==j,:);
+                            ObjectData_fromLiDAR{num_obj,1} = ptCloudLCS(ismember(ptCloudLCS, clusterptCloudLCS.Location(labels_k==j,:), 'rows'),:);
+                            ObjectData{num_obj,1} = ptCloud(ismember(ptCloudLCS, clusterptCloudLCS.Location(labels_k==j,:), 'rows'),:);
                             if any(assignment(:,1)==j)
                                 ObjectData{num_obj,2} = ObjectData_fromCamera{assignment(assignment(:,1)==j,2),2};
                                 ObjectData{num_obj,3} = ObjectData_fromCamera{assignment(assignment(:,1)==j,2),3};
@@ -115,7 +117,8 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
     
                     elseif Obj_num == 1 % クラスタ数とカメラで識別した物体数が同じ場合
                         num_obj = num_obj + 1;
-                        ObjectData{num_obj,1} = cluseterptCloud.Location;
+                        ObjectData_fromLiDAR{num_obj,1} = ptCloudLCS(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
+                        ObjectData{num_obj,1} = ptCloud(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
                         ObjectData{num_obj,2} = ObjectData_fromCamera{OLPlabel,2};
                         ObjectData{num_obj,3} = ObjectData_fromCamera{OLPlabel,3};
                         ObjectData{num_obj,4} = ObjectData_fromCamera{OLPlabel,4};
@@ -123,7 +126,8 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
     
                     elseif Obj_num == 0 % クラスタの一部はカメラの画角に入っているが，YOLOで認識できていないor信頼度スコアが低い場合
                         num_obj = num_obj + 1;
-                        ObjectData{num_obj,1} = cluseterptCloud.Location;
+                        ObjectData_fromLiDAR{num_obj,1} = ptCloudLCS(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
+                        ObjectData{num_obj,1} = ptCloud(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
                         ObjectData{num_obj,2} = [];
                         ObjectData{num_obj,3} = [];
                         ObjectData{num_obj,4} = [];
@@ -133,19 +137,22 @@ function [ObjectData,Objectpt,new_labels] = LiDARcamerafusion(allptCloud,ptCloud
         
                 else % カメラの画角にクラスタ点群が入っていなければLiDARの点群をそのまま使う
                     num_obj = num_obj + 1;
-                    ObjectData{num_obj,1} = cluseterptCloud.Location;
+                    ObjectData_fromLiDAR{num_obj,1} = ptCloudLCS(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
+                    ObjectData{num_obj,1} = ptCloud(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
                     ObjectData{num_obj,2} = [];
                     ObjectData{num_obj,3} = [];
                     ObjectData{num_obj,4} = [];
                     ObjectData{num_obj,5} = [];
+                    
                 end
             else % カメラの画角に点群がなければLiDARの点群をそのまま使う
                 num_obj = num_obj + 1;
-                ObjectData{num_obj,1} = cluseterptCloud.Location;
+                ObjectData_fromLiDAR{num_obj,1} = ptCloudLCS(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
+                ObjectData{num_obj,1} = ptCloud(ismember(ptCloudLCS, clusterptCloudLCS.Location, 'rows'),:);
                 ObjectData{num_obj,2} = [];
                 ObjectData{num_obj,3} = [];
                 ObjectData{num_obj,4} = [];
-                ObjectData{num_obj,5} = [];
+                ObjectData{num_obj,5} = [];          
             end
         end
     end
